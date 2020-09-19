@@ -15,9 +15,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-public class ITFCounter {
+public class TermFrequencyCounter {
 
-    public static class ITFCounterMap extends Mapper<Object, Text, Text, IntWritable>{
+    public static class TermFrequencyCounterMap extends Mapper<Object, Text, Text, IntWritable>{
         private final IntWritable one = new IntWritable(1);
 
         public void map(Object key, Text text, Context context) throws IOException, InterruptedException {
@@ -25,15 +25,14 @@ public class ITFCounter {
             try {
                 json = new JSONObject(text.toString());
                 Text content = new Text(json.get("text").toString());
-
+                String title = json.get("title") .toString().replaceAll(","," ");
+                String d_id = json.get("id").toString() + " " + title;
                 StringTokenizer words = new StringTokenizer(content.toString(), " \'\n.,!?:()[]{};\\/\"*");
-                Set<String> vocab = new HashSet<String>();
 
                 while (words.hasMoreTokens()) {
                     String word = words.nextToken().toLowerCase();
-                    if (!vocab.contains(word) && !word.equals("")) {
-                        vocab.add(word);
-                        context.write(new Text(word), one);
+                    if (!word.equals("")) {
+                        context.write(new Text(word + "_" + d_id), one);
                     }
 
                 }
@@ -44,15 +43,15 @@ public class ITFCounter {
         }
     }
 
-    public static class ITFCounterReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class TermFrequencyCounterReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 
-            int DocCount = 0;
+            int term_frequency = 0;
             for (IntWritable val : values) {
-                DocCount++;
+                term_frequency+=val.get();
             }
-            result.set(DocCount);
+            result.set(term_frequency);
             context.write(key, result);
 
         }
@@ -62,10 +61,10 @@ public class ITFCounter {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "itf");
-        job.setJarByClass(ITFCounter.class);
-        job.setMapperClass(ITFCounterMap.class);
-        job.setCombinerClass(ITFCounterReducer.class);
-        job.setReducerClass(ITFCounterReducer.class);
+        job.setJarByClass(TermFrequencyCounter.class);
+        job.setMapperClass(TermFrequencyCounterMap.class);
+        job.setCombinerClass(TermFrequencyCounterReducer.class);
+        job.setReducerClass(TermFrequencyCounterReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
