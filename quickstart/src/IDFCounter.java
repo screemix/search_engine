@@ -15,9 +15,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-public class ITFCounter {
+public class IDFCounter {
 
-    public static class ITFCounterMap extends Mapper<Object, Text, Text, IntWritable>{
+    public static class IDFCounterMap extends Mapper<Object, Text, Text, IntWritable>{
+    	
         private final IntWritable one = new IntWritable(1);
 
         public void map(Object key, Text text, Context context) throws IOException, InterruptedException {
@@ -25,14 +26,16 @@ public class ITFCounter {
             try {
                 json = new JSONObject(text.toString());
                 Text content = new Text(json.get("text").toString());
-
-                StringTokenizer words = new StringTokenizer(content.toString(), " \'\n.,!?:()[]{};\\/\"*");
+                String d_id = json.get("id").toString();
+                // StringTokenizer words = new StringTokenizer(content.toString(), " \'\n.,!?:()[]{};\\/\"*");
+                StringTokenizer words = new StringTokenizer(content.toString().toLowerCase().replaceAll("[^A-Za-z- ]", ""));
                 Set<String> vocab = new HashSet<String>();
 
                 while (words.hasMoreTokens()) {
                     String word = words.nextToken().toLowerCase();
-                    if (!vocab.contains(word) && !word.equals("")) {
-                        vocab.add(word);
+                    String tmp = word + "_" + d_id;
+                    if (!vocab.contains(tmp) && !word.equals("") && !(word.charAt(0) == '-')) {
+                        vocab.add(tmp);
                         context.write(new Text(word), one);
                     }
 
@@ -44,14 +47,14 @@ public class ITFCounter {
         }
     }
 
-    public static class ITFCounterReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class IDFCounterReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 
             int DocCount = 0;
             for (IntWritable val : values) {
-                DocCount++;
-            }
+                DocCount += val.get();
+;            }
             result.set(DocCount);
             context.write(key, result);
 
@@ -61,11 +64,11 @@ public class ITFCounter {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "itf");
-        job.setJarByClass(ITFCounter.class);
-        job.setMapperClass(ITFCounterMap.class);
-        job.setCombinerClass(ITFCounterReducer.class);
-        job.setReducerClass(ITFCounterReducer.class);
+        Job job = Job.getInstance(conf, "idf");
+        job.setJarByClass(IDFCounter.class);
+        job.setMapperClass(IDFCounterMap.class);
+        job.setCombinerClass(IDFCounterReducer.class);
+        job.setReducerClass(IDFCounterReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));

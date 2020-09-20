@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.StringTokenizer;  
 
 public class TFCounter {
 
@@ -26,14 +26,15 @@ public class TFCounter {
             try {
                 json = new JSONObject(text.toString());
                 Text content = new Text(json.get("text").toString());
-                String title = json.get("title") .toString().replaceAll(","," ");
-                String d_id = json.get("id").toString() + " " + title;
-                StringTokenizer words = new StringTokenizer(content.toString(), " \'\n.,!?:()[]{};\\/\"*");
+                // String title = json.get("title") .toString().replaceAll(","," ");
+                String d_id = json.get("id").toString();
+                // StringTokenizer words = new StringTokenizer(content.toString(), " \'\n.,!?:()[]{};\\/\"*");
+                StringTokenizer words = new StringTokenizer(content.toString().toLowerCase().replaceAll("[^A-Za-z- ]", ""));
 
                 while (words.hasMoreTokens()) {
                     String word = words.nextToken().toLowerCase();
-                    if (!word.equals("")) {
-                        context.write(new Text(word + "_" + d_id), one);
+                    if (!word.trim().equals("") && !(word.charAt(0) == '-')) {
+                        context.write(new Text(word + "\t" + d_id), one);
                     }
 
                 }
@@ -61,7 +62,7 @@ public class TFCounter {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "itf");
+        Job job = Job.getInstance(conf, "tf");
         job.setJarByClass(TFCounter.class);
         job.setMapperClass(TFCounterMap.class);
         job.setCombinerClass(TFCounterReducer.class);
