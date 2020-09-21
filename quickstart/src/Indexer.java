@@ -71,7 +71,7 @@ public class Indexer {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "itf");
+        Job job = Job.getInstance(conf, "indexer");
         job.setJarByClass(Indexer.class);
         job.setMapperClass(IndexerMap.class);
         // job.setCombinerClass(IndexerReducer.class);
