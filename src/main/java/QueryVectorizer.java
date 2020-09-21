@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 
 public class QueryVectorizer {
 
-  public static String queryToVector(String[] args, Configuration configuration) throws Exception {
+  public static String queryToVec(String[] args, Configuration configuration) throws Exception {
 
     Map<String, Double> querySet = new HashMap<String, Double>;
     String query = args[args.length - 1].toLowerCase();
