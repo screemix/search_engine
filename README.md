@@ -30,6 +30,14 @@ The goal for this project was to enhance our skill of writing MapReduce tasks in
 
 ## 3. How to launch
 
+The main execuable file is called ”final.jar”. The next commands should be used to launch the corresponding services:
+
+Indexer:
+```hadoop jar path/to/final.jar chepuhapp.Main Index /path/to/input```
+
+Querier:
+```hadoop jar path/to/final.jar chepuhapp.Main Query N "Query text" ```
+
 ## 4. Outcomes
 The team has achieved the project goal, and developed naive search engine.
 Moreover, as a learning result of accomplishing of the project, all team members:
@@ -45,4 +53,5 @@ Moreover, as a learning result of accomplishing of the project, all team members
     * 4 Search engines concepts
 
 ## 5. Sourses
-1. Big Data Analytics for Search Engine Optimization
+1. [Big Data Analytics for Search Engine Optimization](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwihheiptYLsAhVPAxAIHcVgAG4QFjAKegQIBRAB&url=https%3A%2F%2Fwww.mdpi.com%2F2504-2289%2F4%2F2%2F5%2Fpdf&usg=AOvVaw2JMMShJkpOsauamClDcuwz)
+2. [MapReduce Tutorial](https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html)
